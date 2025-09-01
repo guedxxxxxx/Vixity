@@ -1,4 +1,4 @@
---// Auto Reset + Auto Rejoin with Compact RGB Countdown GUI + Buttons //--
+--// Auto Reset + Auto Rejoin with Rounded Grey UI and Black & White Gradient //--
 
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
@@ -12,37 +12,51 @@ local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Parent = game:GetService("CoreGui")
 ScreenGui.ResetOnSpawn = false
 
--- Countdown Label (Top line)
+-- Main Frame
+local MainFrame = Instance.new("Frame")
+MainFrame.Parent = ScreenGui
+MainFrame.Size = UDim2.new(0, 300, 0, 130)
+MainFrame.Position = UDim2.new(0, 20, 0, 20)
+MainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+MainFrame.BorderSizePixel = 0
+
+-- Rounded corners
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 15)
+UICorner.Parent = MainFrame
+
+-- Countdown Label
 local CountdownLabel = Instance.new("TextLabel")
-CountdownLabel.Parent = ScreenGui
+CountdownLabel.Parent = MainFrame
 CountdownLabel.BackgroundTransparency = 1
-CountdownLabel.Size = UDim2.new(0, 320, 0, 30)
-CountdownLabel.Position = UDim2.new(0, 10, 0, 10)
+CountdownLabel.Size = UDim2.new(1, 0, 0, 40)
+CountdownLabel.Position = UDim2.new(0, 0, 0, 10)
 CountdownLabel.TextScaled = true
 CountdownLabel.Font = Enum.Font.SourceSansBold
 CountdownLabel.TextStrokeTransparency = 0.5
 CountdownLabel.RichText = true
 CountdownLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-CountdownLabel.TextXAlignment = Enum.TextXAlignment.Left
+CountdownLabel.TextXAlignment = Enum.TextXAlignment.Center
 
--- Made by label (second line)
+-- Credit Label
 local CreditLabel = Instance.new("TextLabel")
-CreditLabel.Parent = ScreenGui
+CreditLabel.Parent = MainFrame
 CreditLabel.BackgroundTransparency = 1
-CreditLabel.Size = UDim2.new(0, 300, 0, 20)
-CreditLabel.Position = UDim2.new(0, 10, 0, 45)
+CreditLabel.Size = UDim2.new(1, 0, 0, 20)
+CreditLabel.Position = UDim2.new(0, 0, 0, 55)
 CreditLabel.TextScaled = true
-CreditLabel.Font = Enum.Font.SourceSans
-CreditLabel.Text = "Made by Guedx_zs"
+CreditLabel.Font = Enum.Font.SourceSansBold
+CreditLabel.TextStrokeTransparency = 0.5
 CreditLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-CreditLabel.TextXAlignment = Enum.TextXAlignment.Left
+CreditLabel.Text = "Made by Guedx_zs"
+CreditLabel.TextXAlignment = Enum.TextXAlignment.Center
 
 -- Buttons
 local function createButton(name, positionX, callback)
     local btn = Instance.new("TextButton")
-    btn.Parent = ScreenGui
-    btn.Size = UDim2.new(0, 90, 0, 35)
-    btn.Position = UDim2.new(0, positionX, 0, 75)
+    btn.Parent = MainFrame
+    btn.Size = UDim2.new(0, 100, 0, 35)
+    btn.Position = UDim2.new(0, positionX, 0, 85)
     btn.Text = name
     btn.Font = Enum.Font.SourceSansBold
     btn.TextScaled = true
@@ -50,35 +64,30 @@ local function createButton(name, positionX, callback)
     btn.TextColor3 = Color3.fromRGB(255, 255, 255)
     btn.BorderSizePixel = 0
 
-    -- Hover effect
-    btn.MouseEnter:Connect(function()
-        btn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-    end)
-    btn.MouseLeave:Connect(function()
-        btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    end)
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = btn
 
     btn.MouseButton1Click:Connect(callback)
     return btn
 end
 
-local resetButton = createButton("Reset", 10, function()
+local resetButton = createButton("Reset", 20, function()
     if player.Character then
         player.Character:BreakJoints()
     end
 end)
 
-local rejoinButton = createButton("Rejoin", 110, function()
+local rejoinButton = createButton("Rejoin", 180, function()
     TeleportService:Teleport(placeId, player)
 end)
 
 -- Timers
-local RESET_INTERVAL = 1200  -- 20 minutes
-local REJOIN_INTERVAL = 3600 -- 1 hour
+local RESET_INTERVAL = 1200
+local REJOIN_INTERVAL = 3600
 local resetTimeLeft = RESET_INTERVAL
 local rejoinTimeLeft = REJOIN_INTERVAL
 
--- Countdown updater
 task.spawn(function()
     while true do
         task.wait(1)
@@ -89,7 +98,6 @@ task.spawn(function()
     end
 end)
 
--- Auto Reset
 task.spawn(function()
     while true do
         task.wait(RESET_INTERVAL)
@@ -99,7 +107,6 @@ task.spawn(function()
     end
 end)
 
--- Auto Rejoin
 task.spawn(function()
     while true do
         task.wait(REJOIN_INTERVAL)
@@ -107,10 +114,10 @@ task.spawn(function()
     end
 end)
 
--- Side-to-side RGB gradient animation for countdown text
+-- Black & White gradient animation (slow)
 local hueOffset = 0
 RunService.RenderStepped:Connect(function(dt)
-    hueOffset = (hueOffset + dt * 1.5) % 1
+    hueOffset = (hueOffset + dt * 0.3) % 1 -- slower animation
     local message = string.format(
         "Reset in: %ds | Rejoin in: %ds",
         resetTimeLeft, rejoinTimeLeft
@@ -120,11 +127,11 @@ RunService.RenderStepped:Connect(function(dt)
     local length = #message
     for i = 1, length do
         local char = message:sub(i, i)
-        local hue = (hueOffset + (i / length)) % 1
-        local color = Color3.fromHSV(hue, 1, 1)
+        local brightness = math.abs(math.sin((hueOffset + i/length) * math.pi)) -- 0 to 1 wave
+        local gray = math.floor(brightness * 255)
         table.insert(out,
             string.format('<font color="#%02X%02X%02X">%s</font>',
-                color.R * 255, color.G * 255, color.B * 255, char)
+                gray, gray, gray, char)
         )
     end
 
