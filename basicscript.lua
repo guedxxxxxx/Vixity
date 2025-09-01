@@ -1,4 +1,4 @@
---// Auto Reset + Auto Rejoin with Side-to-Side RGB Gradient Countdown GUI + Buttons //--
+--// Auto Reset + Auto Rejoin with Compact RGB Countdown GUI + Buttons //--
 
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
@@ -12,40 +12,63 @@ local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Parent = game:GetService("CoreGui")
 ScreenGui.ResetOnSpawn = false
 
--- Countdown Label
-local TextLabel = Instance.new("TextLabel")
-TextLabel.Parent = ScreenGui
-TextLabel.BackgroundTransparency = 1
-TextLabel.Size = UDim2.new(0, 350, 0, 70)
-TextLabel.Position = UDim2.new(0, 10, 0, 10)
-TextLabel.TextScaled = true
-TextLabel.Font = Enum.Font.SourceSansBold
-TextLabel.TextStrokeTransparency = 0.5
-TextLabel.RichText = true
+-- Countdown Label (Top line)
+local CountdownLabel = Instance.new("TextLabel")
+CountdownLabel.Parent = ScreenGui
+CountdownLabel.BackgroundTransparency = 1
+CountdownLabel.Size = UDim2.new(0, 320, 0, 30)
+CountdownLabel.Position = UDim2.new(0, 10, 0, 10)
+CountdownLabel.TextScaled = true
+CountdownLabel.Font = Enum.Font.SourceSansBold
+CountdownLabel.TextStrokeTransparency = 0.5
+CountdownLabel.RichText = true
+CountdownLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+CountdownLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Made by label (second line)
+local CreditLabel = Instance.new("TextLabel")
+CreditLabel.Parent = ScreenGui
+CreditLabel.BackgroundTransparency = 1
+CreditLabel.Size = UDim2.new(0, 300, 0, 20)
+CreditLabel.Position = UDim2.new(0, 10, 0, 45)
+CreditLabel.TextScaled = true
+CreditLabel.Font = Enum.Font.SourceSans
+CreditLabel.Text = "Made by Guedx_zs"
+CreditLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+CreditLabel.TextXAlignment = Enum.TextXAlignment.Left
 
 -- Buttons
-local function createButton(name, position, callback)
+local function createButton(name, positionX, callback)
     local btn = Instance.new("TextButton")
     btn.Parent = ScreenGui
-    btn.Size = UDim2.new(0, 150, 0, 50)
-    btn.Position = position
+    btn.Size = UDim2.new(0, 90, 0, 35)
+    btn.Position = UDim2.new(0, positionX, 0, 75)
     btn.Text = name
     btn.Font = Enum.Font.SourceSansBold
     btn.TextScaled = true
-    btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     btn.TextColor3 = Color3.fromRGB(255, 255, 255)
     btn.BorderSizePixel = 0
+
+    -- Hover effect
+    btn.MouseEnter:Connect(function()
+        btn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+    end)
+    btn.MouseLeave:Connect(function()
+        btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    end)
+
     btn.MouseButton1Click:Connect(callback)
     return btn
 end
 
-local resetButton = createButton("Reset now", UDim2.new(0, 10, 0, 90), function()
+local resetButton = createButton("Reset", 10, function()
     if player.Character then
         player.Character:BreakJoints()
     end
 end)
 
-local rejoinButton = createButton("Rejoin now", UDim2.new(0, 170, 0, 90), function()
+local rejoinButton = createButton("Rejoin", 110, function()
     TeleportService:Teleport(placeId, player)
 end)
 
@@ -84,12 +107,12 @@ task.spawn(function()
     end
 end)
 
--- Side-to-side RGB gradient animation
+-- Side-to-side RGB gradient animation for countdown text
 local hueOffset = 0
 RunService.RenderStepped:Connect(function(dt)
-    hueOffset = (hueOffset + dt * 1.5) % 1 -- higher multiplier = faster sideways slide
+    hueOffset = (hueOffset + dt * 1.5) % 1
     local message = string.format(
-        "Reset in: %ds | Rejoin in: %ds | made by Guedx_zs",
+        "Reset in: %ds | Rejoin in: %ds",
         resetTimeLeft, rejoinTimeLeft
     )
 
@@ -105,5 +128,5 @@ RunService.RenderStepped:Connect(function(dt)
         )
     end
 
-    TextLabel.Text = table.concat(out)
+    CountdownLabel.Text = table.concat(out)
 end)
