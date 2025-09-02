@@ -1,4 +1,4 @@
---// Auto Reset + Auto Rejoin with Rounded Grey UI, Gradient & Draggable Frame //--
+--// Auto Rejoin with Rounded Grey UI, Gradient & Draggable Frame //--
 
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
@@ -93,61 +93,29 @@ CreditLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 CreditLabel.Text = "Made by Guedx_zs"
 CreditLabel.TextXAlignment = Enum.TextXAlignment.Center
 
--- Buttons
-local function createButton(name, positionX, callback)
-    local btn = Instance.new("TextButton")
-    btn.Parent = MainFrame
-    btn.Size = UDim2.new(0, 100, 0, 35)
-    btn.Position = UDim2.new(0, positionX, 0, 85)
-    btn.Text = name
-    btn.Font = Enum.Font.SourceSansBold
-    btn.TextScaled = true
-    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.BorderSizePixel = 0
+-- Rejoin Button
+local rejoinButton = Instance.new("TextButton")
+rejoinButton.Parent = MainFrame
+rejoinButton.Size = UDim2.new(0, 100, 0, 35)
+rejoinButton.Position = UDim2.new(0, 100, 0, 85)
+rejoinButton.Text = "Rejoin"
+rejoinButton.Font = Enum.Font.SourceSansBold
+rejoinButton.TextScaled = true
+rejoinButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+rejoinButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+rejoinButton.BorderSizePixel = 0
 
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 8)
-    corner.Parent = btn
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 8)
+corner.Parent = rejoinButton
 
-    btn.MouseButton1Click:Connect(callback)
-    return btn
-end
-
-local resetButton = createButton("Reset", 20, function()
-    if player.Character then
-        player.Character:BreakJoints()
-    end
-end)
-
-local rejoinButton = createButton("Rejoin", 180, function()
+rejoinButton.MouseButton1Click:Connect(function()
     TeleportService:Teleport(placeId, player)
 end)
 
--- Timers
-local RESET_INTERVAL = 1200
+-- Timer
 local REJOIN_INTERVAL = 3600
-local resetTimeLeft = RESET_INTERVAL
 local rejoinTimeLeft = REJOIN_INTERVAL
-
-task.spawn(function()
-    while true do
-        task.wait(1)
-        resetTimeLeft -= 1
-        rejoinTimeLeft -= 1
-        if resetTimeLeft <= 0 then resetTimeLeft = RESET_INTERVAL end
-        if rejoinTimeLeft <= 0 then rejoinTimeLeft = REJOIN_INTERVAL end
-    end
-end)
-
-task.spawn(function()
-    while true do
-        task.wait(RESET_INTERVAL)
-        if player.Character then
-            player.Character:BreakJoints()
-        end
-    end
-end)
 
 task.spawn(function()
     while true do
@@ -156,20 +124,19 @@ task.spawn(function()
     end
 end)
 
--- Black & White gradient animation (slow)
+-- Gradient animation for countdown
 local hueOffset = 0
 RunService.RenderStepped:Connect(function(dt)
-    hueOffset = (hueOffset + dt * 0.3) % 1 -- slower animation
-    local message = string.format(
-        "Reset in: %ds | Rejoin in: %ds",
-        resetTimeLeft, rejoinTimeLeft
-    )
+    hueOffset = (hueOffset + dt * 0.3) % 1
+    local message = string.format("Rejoin in: %ds", rejoinTimeLeft)
+    rejoinTimeLeft -= dt
+    if rejoinTimeLeft < 0 then rejoinTimeLeft = REJOIN_INTERVAL end
 
     local out = {}
     local length = #message
     for i = 1, length do
         local char = message:sub(i, i)
-        local brightness = math.abs(math.sin((hueOffset + i/length) * math.pi)) -- 0 to 1 wave
+        local brightness = math.abs(math.sin((hueOffset + i/length) * math.pi))
         local gray = math.floor(brightness * 255)
         table.insert(out,
             string.format('<font color="#%02X%02X%02X">%s</font>',
