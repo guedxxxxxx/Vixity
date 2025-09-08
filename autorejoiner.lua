@@ -1,4 +1,4 @@
---// Auto Rejoin with Rounded Grey UI, Gradient & Draggable Frame //--
+--// Auto Rejoin (20 minutes) with Rounded Grey UI, Gradient & Draggable Frame //--
 
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
@@ -113,8 +113,8 @@ rejoinButton.MouseButton1Click:Connect(function()
     TeleportService:Teleport(placeId, player)
 end)
 
--- Timer
-local REJOIN_INTERVAL = 3600
+-- Timer (20 minutes)
+local REJOIN_INTERVAL = 1200
 local rejoinTimeLeft = REJOIN_INTERVAL
 
 task.spawn(function()
@@ -128,9 +128,10 @@ end)
 local hueOffset = 0
 RunService.RenderStepped:Connect(function(dt)
     hueOffset = (hueOffset + dt * 0.3) % 1
-    local message = string.format("Rejoin in: %ds", rejoinTimeLeft)
     rejoinTimeLeft -= dt
     if rejoinTimeLeft < 0 then rejoinTimeLeft = REJOIN_INTERVAL end
+
+    local message = string.format("Rejoin in: %ds", math.floor(rejoinTimeLeft))
 
     local out = {}
     local length = #message
